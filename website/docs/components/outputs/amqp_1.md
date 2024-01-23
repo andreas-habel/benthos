@@ -101,6 +101,7 @@ urls:
 ### `target_address`
 
 The target address to write to.
+This field supports [interpolation functions](/docs/configuration/interpolation#bloblang-queries).
 
 
 Type: `string`  

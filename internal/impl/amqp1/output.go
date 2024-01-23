@@ -41,7 +41,7 @@ This output benefits from sending multiple messages in flight in parallel for im
 				Example([]string{"amqp://127.0.0.1:5672/", "amqp://127.0.0.2:5672/"}).
 				Optional().
 				Version("4.23.0"),
-			service.NewStringField(targetAddrField).
+			service.NewInterpolatedStringField(targetAddrField).
 				Description("The target address to write to.").
 				Example("/foo").
 				Example("queue:/bar").
@@ -88,7 +88,7 @@ type amqp1Writer struct {
 	sender  *amqp.Sender
 
 	urls                     []string
-	targetAddr               string
+	targetAddr               *service.InterpolatedString
 	metaFilter               *service.MetadataExcludeFilter
 	applicationPropertiesMap *bloblang.Executor
 	connOpts                 *amqp.ConnOptions
@@ -126,7 +126,7 @@ func amqp1WriterFromParsed(conf *service.ParsedConfig, mgr *service.Resources) (
 		a.urls = []string{singleURL}
 	}
 
-	if a.targetAddr, err = conf.FieldString(targetAddrField); err != nil {
+	if a.targetAddr, err = conf.FieldInterpolatedString(targetAddrField); err != nil {
 		return nil, err
 	}
 
@@ -179,16 +179,18 @@ func (a *amqp1Writer) Connect(ctx context.Context) (err error) {
 		return
 	}
 
-	// Create a sender
-	if sender, err = session.NewSender(ctx, a.targetAddr, nil); err != nil {
-		_ = session.Close(ctx)
-		_ = client.Close()
-		return
+	// Create a sender only if target address is static
+	if addr, static := a.targetAddr.Static(); static {
+		if sender, err = session.NewSender(ctx, addr, nil); err != nil {
+			_ = session.Close(ctx)
+			_ = client.Close()
+			return
+		}
+		a.sender = sender
 	}
 
 	a.client = client
 	a.session = session
-	a.sender = sender
 
 	a.log.Infof("Sending AMQP 1.0 messages to target: %v\n", a.targetAddr)
 	return nil
@@ -202,8 +204,10 @@ func (a *amqp1Writer) disconnect(ctx context.Context) error {
 		return nil
 	}
 
-	if err := a.sender.Close(ctx); err != nil {
-		a.log.Errorf("Failed to cleanly close sender: %v\n", err)
+	if a.sender != nil {
+		if err := a.sender.Close(ctx); err != nil {
+			a.log.Errorf("Failed to cleanly close sender: %v\n", err)
+		}
 	}
 	if err := a.session.Close(ctx); err != nil {
 		a.log.Errorf("Failed to cleanly close session: %v\n", err)
@@ -222,9 +226,25 @@ func (a *amqp1Writer) disconnect(ctx context.Context) error {
 
 func (a *amqp1Writer) Write(ctx context.Context, msg *service.Message) error {
 	var s *amqp.Sender
+	var addr string
+	var err error
+
 	a.connLock.RLock()
 	if a.sender != nil {
 		s = a.sender
+	} else {
+		// sender might be nil due to interpolation
+		if addr, err = a.targetAddr.TryString(msg); err != nil {
+			a.connLock.RUnlock()
+			return fmt.Errorf("target address interpolation error: %w", err)
+		}
+
+		if s, err = a.session.NewSender(ctx, addr, nil); err != nil {
+			a.connLock.RUnlock()
+			return fmt.Errorf("cannot create sender: %w", err)
+		}
+		// in case we are using dynamic topics, close the sender after every write
+		defer s.Close(ctx)
 	}
 	a.connLock.RUnlock()
 

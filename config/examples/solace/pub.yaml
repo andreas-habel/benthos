@@ -1,0 +1,46 @@
+http:
+  enabled: false
+input:
+  label: generate
+  generate:
+    mapping: |
+      root = { "message": "Hello World"}
+    interval: 0
+    count: 100
+    batch_size: 1
+
+pipeline:
+  processors:
+    - mapping: |
+        #!blobl
+        meta name = fake("word")
+
+output:
+  broker:
+    pattern: fan_out
+    outputs:
+      - stdout:
+          codec: lines
+      - solace:
+          transport:
+            host: tcp://localhost:55555 # No default (required)
+          service:
+            vpn_name: default
+          authentication:
+            scheme: AUTHENTICATION_SCHEME_BASIC
+            basic:
+              username: "demo" # No default (optional)
+              password: "admin" # No default (optional)
+          endpoint:
+            # queue_name: "demo"
+            topic_name: demotopic/${! metadata("name") }
+
+logger:
+  level: DEBUG
+  format: logfmt
+  add_timestamp: false
+  level_name: level
+  timestamp_name: time
+  message_name: msg
+  static_fields:
+    '@service': benthos

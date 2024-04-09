@@ -1,0 +1,39 @@
+http:
+  enabled: false
+input:
+  label: solace
+  solace:
+    transport:
+      host: tcp://localhost:55555 # No default (required)
+      keep_alive_interval: 32000
+      reconnection_attempts: -1
+      reconnection_attempts_wait_interval: 1000
+    service:
+      vpn_name: default
+      generate_sender_id: true
+      generate_receive_timestamps: true
+      generate_send_timestamps: true
+    authentication:
+      scheme: AUTHENTICATION_SCHEME_BASIC
+      basic:
+        username: "demo" # No default (optional)
+        password: "admin" # No default (optional)
+    endpoint:
+      queue_name: "demo"
+pipeline:
+  processors:
+    - mapping: |
+        root.data = this
+        root.meta = metadata()
+output:
+  stdout:
+    codec: lines
+logger:
+  level: DEBUG
+  format: logfmt
+  add_timestamp: false
+  level_name: level
+  timestamp_name: time
+  message_name: msg
+  static_fields:
+    '@service': benthos

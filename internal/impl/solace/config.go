@@ -99,6 +99,31 @@ The valid range is greater than or equal to zero.`).
 					Description("Password specifies password for basic authentication.").
 					Optional().Secret(),
 			).Description("Configuration for basic auth"),
+			service.NewObjectField("oauth2",
+				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeOAuth2AccessToken)).
+					Description("AccessToken specifies an access token for OAuth 2.0 token-based authentication.").
+					Optional().Secret(),
+				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeOAuth2IssuerIdentifier)).
+					Description("IssuerIdentifier defines an optional issuer identifier for OAuth 2.0 token-based authentication.").
+					Optional(),
+				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeOAuth2OIDCIDToken)).
+					Description("OIDCIDToken specifies the ID token for Open ID Connect token-based authentication.").
+					Optional(),
+			).Description("Configuration for oauth2 auth").Advanced(),
+			service.NewObjectField("client_certificate",
+				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeSSLClientCertFile)).
+					Description("AuthenticationPropertySchemeSSLClientCertFile specifies the client certificate file used for Secure Socket Layer (SSL).").
+					Optional(),
+				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeSSLClientPrivateKeyFile)).
+					Description("AuthenticationPropertySchemeSSLClientPrivateKeyFile specifies the client private key file.").
+					Optional(),
+				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeClientCertPrivateKeyFilePassword)).
+					Description("PrivateKeyFilePassword specifies the private key password for client certificate authentication.").
+					Optional().Secret(),
+				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeClientCertUserName)).
+					Description("Username specifies the username to use when connecting with client certificate authentication.").
+					Optional(),
+			).Description("Configuration for client_certificate auth").Advanced(),
 		),
 	}
 }

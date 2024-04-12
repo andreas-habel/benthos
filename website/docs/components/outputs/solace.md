@@ -77,6 +77,15 @@ output:
       basic:
         username: "" # No default (optional)
         password: "" # No default (optional)
+      oauth2:
+        access_token: "" # No default (optional)
+        issuer_identifier: "" # No default (optional)
+        oidc_id_token: "" # No default (optional)
+      client_certificate:
+        file: "" # No default (optional)
+        private_key_file: "" # No default (optional)
+        private_key_password: "" # No default (optional)
+        username: "" # No default (optional)
 ```
 
 </TabItem>
@@ -286,6 +295,75 @@ Password specifies password for basic authentication.
 :::warning Secret
 This field contains sensitive information that usually shouldn't be added to a config directly, read our [secrets page for more info](/docs/configuration/secrets).
 :::
+
+
+Type: `string`  
+
+### `authentication.oauth2`
+
+Configuration for oauth2 auth
+
+
+Type: `object`  
+
+### `authentication.oauth2.access_token`
+
+AccessToken specifies an access token for OAuth 2.0 token-based authentication.
+:::warning Secret
+This field contains sensitive information that usually shouldn't be added to a config directly, read our [secrets page for more info](/docs/configuration/secrets).
+:::
+
+
+Type: `string`  
+
+### `authentication.oauth2.issuer_identifier`
+
+IssuerIdentifier defines an optional issuer identifier for OAuth 2.0 token-based authentication.
+
+
+Type: `string`  
+
+### `authentication.oauth2.oidc_id_token`
+
+OIDCIDToken specifies the ID token for Open ID Connect token-based authentication.
+
+
+Type: `string`  
+
+### `authentication.client_certificate`
+
+Configuration for client_certificate auth
+
+
+Type: `object`  
+
+### `authentication.client_certificate.file`
+
+AuthenticationPropertySchemeSSLClientCertFile specifies the client certificate file used for Secure Socket Layer (SSL).
+
+
+Type: `string`  
+
+### `authentication.client_certificate.private_key_file`
+
+AuthenticationPropertySchemeSSLClientPrivateKeyFile specifies the client private key file.
+
+
+Type: `string`  
+
+### `authentication.client_certificate.private_key_password`
+
+PrivateKeyFilePassword specifies the private key password for client certificate authentication.
+:::warning Secret
+This field contains sensitive information that usually shouldn't be added to a config directly, read our [secrets page for more info](/docs/configuration/secrets).
+:::
+
+
+Type: `string`  
+
+### `authentication.client_certificate.username`
+
+Username specifies the username to use when connecting with client certificate authentication.
 
 
 Type: `string`  

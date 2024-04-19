@@ -39,13 +39,14 @@ output:
     max_in_flight: 64
     transport:
       host: tcp://localhost:55555 # No default (required)
+      trust_store_path: "" # No default (optional)
     service:
       vpn_name: default
     authentication:
       scheme: AUTHENTICATION_SCHEME_BASIC
       basic:
-        username: "" # No default (optional)
-        password: "" # No default (optional)
+        username: "" # No default (required)
+        password: "" # No default (required)
 ```
 
 </TabItem>
@@ -62,6 +63,7 @@ output:
     max_in_flight: 64
     transport:
       host: tcp://localhost:55555 # No default (required)
+      trust_store_path: "" # No default (optional)
       keep_alive_interval: 32000
       connection_retries: 5
       retries_per_host: 3
@@ -75,15 +77,15 @@ output:
     authentication:
       scheme: AUTHENTICATION_SCHEME_BASIC
       basic:
-        username: "" # No default (optional)
-        password: "" # No default (optional)
+        username: "" # No default (required)
+        password: "" # No default (required)
       oauth2:
-        access_token: "" # No default (optional)
-        issuer_identifier: "" # No default (optional)
-        oidc_id_token: "" # No default (optional)
+        access_token: "" # No default (required)
+        issuer_identifier: "" # No default (required)
+        oidc_id_token: "" # No default (required)
       client_certificate:
-        file: "" # No default (optional)
-        private_key_file: "" # No default (optional)
+        file: "" # No default (required)
+        private_key_file: "" # No default (required)
         private_key_password: "" # No default (optional)
         username: "" # No default (optional)
 ```
@@ -91,7 +93,17 @@ output:
 </TabItem>
 </Tabs>
 
-Demo
+### Metadata
+
+This output supports different metadata headers to set various message headers and properties.
+
+#### `solace_priority`
+
+Set the metadata to a number between `9` (highest) and `0` (lowest) priority to use message priority.
+To have messages sorted in queues based on the priority, make sure that `Respect Message Priority` is set to `true` for the queue.
+When enabled, messages contained in the Queue are delivered in priority order.
+Regardless of this setting, message priority is not respected when browsing the queue, when the queue is used by a bridge, or if the queue is partitioned.
+
 
 ## Fields
 
@@ -158,6 +170,13 @@ host: tcp://localhost:55555
 
 host: tcps://localhost:55443
 ```
+
+### `transport.trust_store_path`
+
+trust_store_path specifies the path of the directory where trusted certificates are found. The maximum depth for the certificate chain verification is 3.
+
+
+Type: `string`  
 
 ### `transport.keep_alive_interval`
 

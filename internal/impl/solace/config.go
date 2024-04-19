@@ -9,6 +9,8 @@ const (
 	obfuscated = "*********"
 	metaPrefix = "solace_"
 
+	metaPriority = metaPrefix + "priority"
+
 	endpointObject = "endpoint"
 	topicNameField = "topic_name"
 	queueNameField = "queue_name"
@@ -35,6 +37,9 @@ func getDefaultConfigFields() []*service.ConfigField {
 				Description("Host is an IPv4 or IPv6 address or host name of the broker to which to connect. Multiple entries are permitted when each address is separated by a comma. The entry for the Host property should provide a protocol, host and port.").
 				Example("tcp://localhost:55555").
 				Example("tcps://localhost:55443"),
+			service.NewStringField(stripPropertyName(config.TransportLayerSecurityPropertyTrustStorePath)).
+				Description("trust_store_path specifies the path of the directory where trusted certificates are found. The maximum depth for the certificate chain verification is 3.").
+				Optional(),
 			service.NewIntField(stripPropertyName(config.TransportLayerPropertyKeepAliveInterval)).
 				Description("KeepAliveInterval is the amount of time (in milliseconds) to wait between sending out Keep-Alive messages.").
 				Advanced().Optional().Default(32000), // TODO: clarify corrent default value
@@ -93,37 +98,33 @@ The valid range is greater than or equal to zero.`).
 			// BasicAuth Configuration
 			service.NewObjectField("basic",
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeBasicUserName)).
-					Description("Username specifies the username for basic authentication.").
-					Optional(),
+					Description("Username specifies the username for basic authentication."),
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeBasicPassword)).
-					Description("Password specifies password for basic authentication.").
-					Optional().Secret(),
-			).Description("Configuration for basic auth"),
+					Description("Password specifies password for basic authentication.").Secret(),
+			).Description("Configuration for basic auth").Optional(),
+
 			service.NewObjectField("oauth2",
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeOAuth2AccessToken)).
 					Description("AccessToken specifies an access token for OAuth 2.0 token-based authentication.").
-					Optional().Secret(),
+					Secret(),
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeOAuth2IssuerIdentifier)).
-					Description("IssuerIdentifier defines an optional issuer identifier for OAuth 2.0 token-based authentication.").
-					Optional(),
+					Description("IssuerIdentifier defines an optional issuer identifier for OAuth 2.0 token-based authentication."),
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeOAuth2OIDCIDToken)).
-					Description("OIDCIDToken specifies the ID token for Open ID Connect token-based authentication.").
-					Optional(),
-			).Description("Configuration for oauth2 auth").Advanced(),
+					Description("OIDCIDToken specifies the ID token for Open ID Connect token-based authentication."),
+			).Description("Configuration for oauth2 auth").Advanced().Optional(),
+
 			service.NewObjectField("client_certificate",
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeSSLClientCertFile)).
-					Description("AuthenticationPropertySchemeSSLClientCertFile specifies the client certificate file used for Secure Socket Layer (SSL).").
-					Optional(),
+					Description("AuthenticationPropertySchemeSSLClientCertFile specifies the client certificate file used for Secure Socket Layer (SSL)."),
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeSSLClientPrivateKeyFile)).
-					Description("AuthenticationPropertySchemeSSLClientPrivateKeyFile specifies the client private key file.").
-					Optional(),
+					Description("AuthenticationPropertySchemeSSLClientPrivateKeyFile specifies the client private key file."),
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeClientCertPrivateKeyFilePassword)).
 					Description("PrivateKeyFilePassword specifies the private key password for client certificate authentication.").
 					Optional().Secret(),
 				service.NewStringField(stripPropertyName(config.AuthenticationPropertySchemeClientCertUserName)).
 					Description("Username specifies the username to use when connecting with client certificate authentication.").
 					Optional(),
-			).Description("Configuration for client_certificate auth").Advanced(),
+			).Description("Configuration for client_certificate auth").Advanced().Optional(),
 		),
 	}
 }

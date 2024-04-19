@@ -2,7 +2,9 @@ package solace
 
 import (
 	"context"
+	_ "embed"
 	"fmt"
+	"strconv"
 	"sync"
 
 	"github.com/benthosdev/benthos/v4/public/service"
@@ -10,8 +12,8 @@ import (
 	"solace.dev/go/messaging/pkg/solace/resource"
 )
 
-// ---go:embed input_description.md
-var outputDescription string = "Demo"
+//go:embed output_description.md
+var outputDescription string
 
 func solaceOuputSpec() *service.ConfigSpec {
 
@@ -93,6 +95,16 @@ func (o *solaceOutput) Write(ctx context.Context, msg *service.Message) error {
 	if err != nil {
 		return err
 	}
+
+	if prioStr, found := msg.MetaGet(metaPriority); found {
+		prio, err := strconv.Atoi(prioStr)
+		if err != nil {
+			o.log.Warnf("Cannot set message priority. Cannot parse %s to int due to error %w", prio, err)
+		} else {
+			builder = builder.WithPriority(prio)
+		}
+	}
+
 	message, err := builder.BuildWithByteArrayPayload(data)
 	if err != nil {
 		return err

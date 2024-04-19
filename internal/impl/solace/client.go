@@ -36,6 +36,9 @@ func (c *Client) initSharedConfig(conf *service.ParsedConfig) (err error) {
 	if c.properties[config.TransportLayerPropertyHost], err = conf.FieldString("transport", stripPropertyName(config.TransportLayerPropertyHost)); err != nil {
 		return err
 	}
+	if c.properties[config.TransportLayerSecurityPropertyTrustStorePath], err = conf.FieldString("transport", stripPropertyName(config.TransportLayerSecurityPropertyTrustStorePath)); err != nil {
+		return err
+	}
 	if c.properties[config.TransportLayerPropertyKeepAliveInterval], err = conf.FieldInt("transport", stripPropertyName(config.TransportLayerPropertyKeepAliveInterval)); err != nil {
 		return err
 	}
@@ -69,35 +72,44 @@ func (c *Client) initSharedConfig(conf *service.ParsedConfig) (err error) {
 	if c.properties[config.AuthenticationPropertyScheme], err = conf.FieldString("authentication", stripPropertyName(config.AuthenticationPropertyScheme)); err != nil {
 		return err
 	}
+
 	// basic
-	if c.properties[config.AuthenticationPropertySchemeBasicUserName], err = conf.FieldString("authentication", "basic", stripPropertyName(config.AuthenticationPropertySchemeBasicUserName)); err != nil {
-		return err
+	if conf.Contains("authentication", "basic") {
+		if c.properties[config.AuthenticationPropertySchemeBasicUserName], err = conf.FieldString("authentication", "basic", stripPropertyName(config.AuthenticationPropertySchemeBasicUserName)); err != nil {
+			return err
+		}
+		if c.properties[config.AuthenticationPropertySchemeBasicPassword], err = conf.FieldString("authentication", "basic", stripPropertyName(config.AuthenticationPropertySchemeBasicPassword)); err != nil {
+			return err
+		}
 	}
-	if c.properties[config.AuthenticationPropertySchemeBasicPassword], err = conf.FieldString("authentication", "basic", stripPropertyName(config.AuthenticationPropertySchemeBasicPassword)); err != nil {
-		return err
-	}
+
 	// oauth2
-	if c.properties[config.AuthenticationPropertySchemeOAuth2AccessToken], err = conf.FieldString("authentication", "oauth2", stripPropertyName(config.AuthenticationPropertySchemeOAuth2AccessToken)); err != nil {
-		return err
+	if conf.Contains("authentication", "oauth2") {
+		if c.properties[config.AuthenticationPropertySchemeOAuth2AccessToken], err = conf.FieldString("authentication", "oauth2", stripPropertyName(config.AuthenticationPropertySchemeOAuth2AccessToken)); err != nil {
+			return err
+		}
+		if c.properties[config.AuthenticationPropertySchemeOAuth2IssuerIdentifier], err = conf.FieldString("authentication", "oauth2", stripPropertyName(config.AuthenticationPropertySchemeOAuth2IssuerIdentifier)); err != nil {
+			return err
+		}
+		if c.properties[config.AuthenticationPropertySchemeOAuth2OIDCIDToken], err = conf.FieldString("authentication", "oauth2", stripPropertyName(config.AuthenticationPropertySchemeOAuth2OIDCIDToken)); err != nil {
+			return err
+		}
 	}
-	if c.properties[config.AuthenticationPropertySchemeOAuth2IssuerIdentifier], err = conf.FieldString("authentication", "oauth2", stripPropertyName(config.AuthenticationPropertySchemeOAuth2IssuerIdentifier)); err != nil {
-		return err
-	}
-	if c.properties[config.AuthenticationPropertySchemeOAuth2OIDCIDToken], err = conf.FieldString("authentication", "oauth2", stripPropertyName(config.AuthenticationPropertySchemeOAuth2OIDCIDToken)); err != nil {
-		return err
-	}
+
 	// client_certificate
-	if c.properties[config.AuthenticationPropertySchemeSSLClientCertFile], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeSSLClientCertFile)); err != nil {
-		return err
-	}
-	if c.properties[config.AuthenticationPropertySchemeSSLClientPrivateKeyFile], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeSSLClientPrivateKeyFile)); err != nil {
-		return err
-	}
-	if c.properties[config.AuthenticationPropertySchemeClientCertPrivateKeyFilePassword], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeClientCertPrivateKeyFilePassword)); err != nil {
-		return err
-	}
-	if c.properties[config.AuthenticationPropertySchemeClientCertUserName], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeClientCertUserName)); err != nil {
-		return err
+	if conf.Contains("authentication", "client_certificate") {
+		if c.properties[config.AuthenticationPropertySchemeSSLClientCertFile], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeSSLClientCertFile)); err != nil {
+			return err
+		}
+		if c.properties[config.AuthenticationPropertySchemeSSLClientPrivateKeyFile], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeSSLClientPrivateKeyFile)); err != nil {
+			return err
+		}
+		if c.properties[config.AuthenticationPropertySchemeClientCertPrivateKeyFilePassword], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeClientCertPrivateKeyFilePassword)); err != nil {
+			return err
+		}
+		if c.properties[config.AuthenticationPropertySchemeClientCertUserName], err = conf.FieldString("authentication", "client_certificate", stripPropertyName(config.AuthenticationPropertySchemeClientCertUserName)); err != nil {
+			return err
+		}
 	}
 
 	// print all config properties, when debug logging is active, but obfuscate passwords!

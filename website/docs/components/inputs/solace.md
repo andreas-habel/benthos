@@ -37,13 +37,14 @@ input:
       queue_name: my/queue # No default (required)
     transport:
       host: tcp://localhost:55555 # No default (required)
+      trust_store_path: "" # No default (optional)
     service:
       vpn_name: default
     authentication:
       scheme: AUTHENTICATION_SCHEME_BASIC
       basic:
-        username: "" # No default (optional)
-        password: "" # No default (optional)
+        username: "" # No default (required)
+        password: "" # No default (required)
 ```
 
 </TabItem>
@@ -58,6 +59,7 @@ input:
       queue_name: my/queue # No default (required)
     transport:
       host: tcp://localhost:55555 # No default (required)
+      trust_store_path: "" # No default (optional)
       keep_alive_interval: 32000
       connection_retries: 5
       retries_per_host: 3
@@ -71,15 +73,15 @@ input:
     authentication:
       scheme: AUTHENTICATION_SCHEME_BASIC
       basic:
-        username: "" # No default (optional)
-        password: "" # No default (optional)
+        username: "" # No default (required)
+        password: "" # No default (required)
       oauth2:
-        access_token: "" # No default (optional)
-        issuer_identifier: "" # No default (optional)
-        oidc_id_token: "" # No default (optional)
+        access_token: "" # No default (required)
+        issuer_identifier: "" # No default (required)
+        oidc_id_token: "" # No default (required)
       client_certificate:
-        file: "" # No default (optional)
-        private_key_file: "" # No default (optional)
+        file: "" # No default (required)
+        private_key_file: "" # No default (required)
         private_key_password: "" # No default (optional)
         username: "" # No default (optional)
 ```
@@ -132,6 +134,13 @@ host: tcp://localhost:55555
 
 host: tcps://localhost:55443
 ```
+
+### `transport.trust_store_path`
+
+trust_store_path specifies the path of the directory where trusted certificates are found. The maximum depth for the certificate chain verification is 3.
+
+
+Type: `string`  
 
 ### `transport.keep_alive_interval`
 
